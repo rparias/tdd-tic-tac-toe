@@ -19,7 +19,11 @@ public class TicTacToe {
         lastPlayer = nextPlayer();
         setBox(xAxis, yAxis, lastPlayer);
 
-        if (isWin()) return lastPlayer + " is the winner";
+        if (isWin()) {
+            return lastPlayer + " is the winner";
+        } else if (isDraw()) {
+            return "The result is draw";
+        }
 
         return "No Winner";
     }
@@ -34,6 +38,15 @@ public class TicTacToe {
             }
         }
         return false;
+    }
+
+    private boolean isDraw() {
+        for (int x = 0; x < MAX_SIZE; x++) {
+            for (int y = 0; y < MAX_SIZE; y++) {
+                if (board[x][y] == '0') return false;
+            }
+        }
+        return true;
     }
 
     private boolean isHorizontalLine(int index) {
