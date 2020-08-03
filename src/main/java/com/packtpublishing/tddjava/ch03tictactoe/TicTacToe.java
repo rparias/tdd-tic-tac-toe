@@ -21,6 +21,13 @@ public class TicTacToe {
 
     protected TicTacToe(TicTacToeCollection ticTacToeCollection) {
         this.ticTacToeCollection = ticTacToeCollection;
+        drop();
+    }
+
+    private void drop() {
+        if (!ticTacToeCollection.drop()) {
+            throw new RuntimeException("Drop failed");
+        }
     }
 
     private Character[][] board = {

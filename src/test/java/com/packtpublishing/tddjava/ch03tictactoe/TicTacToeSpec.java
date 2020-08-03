@@ -25,6 +25,7 @@ public class TicTacToeSpec {
     public void init() {
         ticTacToeCollection = mock(TicTacToeCollection.class);
         doReturn(true).when(ticTacToeCollection).saveMove(any(TicTacToeBean.class));
+        doReturn(true).when(ticTacToeCollection).drop();
         ticTacToe = new TicTacToe(ticTacToeCollection);
     }
 
@@ -155,5 +156,17 @@ public class TicTacToeSpec {
         TicTacToeBean move2 = new TicTacToeBean(2, 2, 3, 'O');
         ticTacToe.play(move2.getX(), move2.getY());
         verify(ticTacToeCollection, times(1)).saveMove(move2);
+    }
+
+    @Test
+    public void whenInstantiatedThenDropInvoked() {
+        verify(ticTacToeCollection, times(1)).drop();
+    }
+
+    @Test
+    public void whenDropReturnsFalseThenThrownException() {
+        doReturn(false).when(ticTacToeCollection).drop();
+        exception.expect(RuntimeException.class);
+        ticTacToe = new TicTacToe(ticTacToeCollection);
     }
 }
