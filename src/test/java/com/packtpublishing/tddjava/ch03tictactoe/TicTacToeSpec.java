@@ -1,10 +1,17 @@
 package com.packtpublishing.tddjava.ch03tictactoe;
 
+import com.packtpublishing.tddjava.ch03tictactoe.mongo.TicTacToeBean;
+import com.packtpublishing.tddjava.ch03tictactoe.mongo.TicTacToeCollection;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class TicTacToeSpec {
 
@@ -12,10 +19,13 @@ public class TicTacToeSpec {
     public ExpectedException exception = ExpectedException.none();
 
     private TicTacToe ticTacToe;
+    private TicTacToeCollection ticTacToeCollection;
 
     @Before
     public void init() {
-        ticTacToe = new TicTacToe();
+        ticTacToeCollection = mock(TicTacToeCollection.class);
+        doReturn(true).when(ticTacToeCollection).saveMove(any(TicTacToeBean.class));
+        ticTacToe = new TicTacToe(ticTacToeCollection);
     }
 
     @Test
@@ -115,5 +125,35 @@ public class TicTacToeSpec {
         ticTacToe.play(3, 3);
         String actual = ticTacToe.play(3, 2);
         assertEquals("The result is draw", actual);
+    }
+
+    @Test
+    public void whenInstantiatedThenSetCollection() {
+        assertNotNull(ticTacToe.getTicTacToeCollection());
+    }
+
+    @Test
+    public void whenPlayThenSaveMoveIsInvoked() {
+        TicTacToeBean move = new TicTacToeBean(1, 1, 3, 'X');
+        ticTacToe.play(move.getX(), move.getY());
+        verify(ticTacToeCollection, times(1)).saveMove(move);
+    }
+
+    @Test
+    public void whenPlayAndSaveReturnsFalseThenThrowException() {
+        doReturn(false).when(ticTacToeCollection).saveMove(any(TicTacToeBean.class));
+        TicTacToeBean move = new TicTacToeBean(1, 1, 3, 'X');
+        exception.expect(RuntimeException.class);
+        ticTacToe.play(move.getX(), move.getY());
+    }
+
+    @Test
+    public void whenPlayInvokedMultipleTimesThenTurnIncrease() {
+        TicTacToeBean move1 = new TicTacToeBean(1, 1, 3, 'X');
+        ticTacToe.play(move1.getX(), move1.getY());
+        verify(ticTacToeCollection, times(1)).saveMove(move1);
+        TicTacToeBean move2 = new TicTacToeBean(2, 2, 3, 'O');
+        ticTacToe.play(move2.getX(), move2.getY());
+        verify(ticTacToeCollection, times(1)).saveMove(move2);
     }
 }

@@ -1,9 +1,27 @@
 package com.packtpublishing.tddjava.ch03tictactoe;
 
+import com.packtpublishing.tddjava.ch03tictactoe.mongo.TicTacToeBean;
+import com.packtpublishing.tddjava.ch03tictactoe.mongo.TicTacToeCollection;
+
+import java.net.UnknownHostException;
+
 public class TicTacToe {
 
     private static final int MIN_SIZE = 1;
     private static final int MAX_SIZE = 3;
+    private static final String RESULT_DRAW = "The result is draw";
+    private static final String NO_WINNER = "No Winner";
+
+    private TicTacToeCollection ticTacToeCollection;
+    private int turn = 0;
+
+    public TicTacToe() throws UnknownHostException {
+        this(new TicTacToeCollection());
+    }
+
+    protected TicTacToe(TicTacToeCollection ticTacToeCollection) {
+        this.ticTacToeCollection = ticTacToeCollection;
+    }
 
     private Character[][] board = {
             {'0', '0', '0'},
@@ -17,15 +35,15 @@ public class TicTacToe {
         checkXAxis(xAxis);
         checkYAxis(yAxis);
         lastPlayer = nextPlayer();
-        setBox(xAxis, yAxis, lastPlayer);
+        setBox(new TicTacToeBean(++turn, xAxis, yAxis, lastPlayer));
 
         if (isWin()) {
             return lastPlayer + " is the winner";
         } else if (isDraw()) {
-            return "The result is draw";
+            return RESULT_DRAW;
         }
 
-        return "No Winner";
+        return NO_WINNER;
     }
 
     private boolean isWin() {
@@ -62,11 +80,14 @@ public class TicTacToe {
                 board[0][2] + board[1][1] + board[2][0] == playerTotal;
     }
 
-    private void setBox(int xAxis, int yAxis, char lastPlayer) {
-        if (board[xAxis-1][yAxis-1] != '0') {
+    private void setBox(TicTacToeBean bean) {
+        if (board[bean.getX() - 1][bean.getY() - 1] != '0') {
             throw new RuntimeException("Box is occupied");
         } else {
-            board[xAxis-1][yAxis-1] = lastPlayer;
+            board[bean.getX() - 1][bean.getY() - 1] = lastPlayer;
+            if (!getTicTacToeCollection().saveMove(bean)) {
+                throw new RuntimeException("Saving to DB failed");
+            }
         }
     }
 
@@ -84,5 +105,9 @@ public class TicTacToe {
 
     public char nextPlayer() {
         return lastPlayer == 'X' ? 'O' : 'X';
+    }
+
+    protected TicTacToeCollection getTicTacToeCollection() {
+        return ticTacToeCollection;
     }
 }
