@@ -10,7 +10,7 @@ public class TicTacToe {
     private static final int MIN_SIZE = 1;
     private static final int MAX_SIZE = 3;
     private static final String RESULT_DRAW = "The result is draw";
-    private static final String NO_WINNER = "No Winner";
+    public static final String NO_WINNER = "No Winner";
 
     private TicTacToeCollection ticTacToeCollection;
     private int turn = 0;
